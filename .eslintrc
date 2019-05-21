@@ -27,12 +27,12 @@
         "prefer-destructuring": [2, { "array": false, "object": false }, { "enforceForRenamedProperties": false }],
 
         "function-paren-newline": 0,
-        "no-plusplus": 1,
-        "no-param-reassign": 1,
-        "no-mixed-operators": 1,
-        "global-require": 1,
-        "no-restricted-syntax": 1,
-        "valid-jsdoc": 1,
+        // "no-plusplus": 1,
+        // "no-param-reassign": 1,
+        // "no-mixed-operators": 1,
+        // "global-require": 1,
+        // "no-restricted-syntax": 1,
+        // "valid-jsdoc": 1,
     },
     "overrides": [
       {
