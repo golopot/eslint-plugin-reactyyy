@@ -13,6 +13,10 @@ declare global {
 
   interface Context extends eslint.SourceCode {
     getFirstTokens(node: estree.Node | ASTNode, options?: eslint.SourceCode.CursorWithCountOptions): eslint.AST.Token[];
+    getScope: eslint.Rule.RuleContext['getScope']
+    getSourceCode: eslint.Rule.RuleContext['getSourceCode'],
+    options: any[],
+    report: eslint.Rule.RuleContext['report'],
   }
 
   type TypeDeclarationBuilder = (annotation: ASTNode, parentName: string, seen: Set<typeof annotation>) => object;
@@ -26,4 +30,8 @@ declare global {
     type: 'union' | 'shape';
     children: UnionTypeDefinitionChildren | true;
   };
+  interface RuleModule {
+    create(context: Context): eslint.Rule.RuleListener;
+    meta?: eslint.Rule.RuleMetaData;
+  }
 }

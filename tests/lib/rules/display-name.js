@@ -429,7 +429,8 @@ ruleTester.run('display-name', rule, {
     parser: parsers.BABEL_ESLINT
   }, {
     code: `
-      module.exports = {
+      /** @type {RuleModule} */
+module.exports = {
         createElement: tagName => document.createElement(tagName)
       };
     `,

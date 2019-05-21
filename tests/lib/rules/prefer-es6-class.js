@@ -48,7 +48,8 @@ ruleTester.run('prefer-es6-class', rule, {
   }, {
     code: `
       var Hello = "foo";
-      module.exports = {};
+      /** @type {RuleModule} */
+module.exports = {};
     `
   }, {
     code: `

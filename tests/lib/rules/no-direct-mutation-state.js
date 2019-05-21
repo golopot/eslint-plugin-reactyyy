@@ -48,7 +48,8 @@ ruleTester.run('no-direct-mutation-state', rule, {
   }, {
     code: [
       'var Hello = "foo";',
-      'module.exports = {};'
+      '/** @type {RuleModule} */
+module.exports = {};'
     ].join('\n')
   }, {
     code: [

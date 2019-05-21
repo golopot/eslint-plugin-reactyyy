@@ -28,7 +28,8 @@ const parserOptions = {
 
 const withJSXElement = 'module.exports = function MyComponent() { return <div>\n<div />\n</div>; }';
 const withJSXFragment = 'module.exports = function MyComponent() { return <>\n</>; }';
-const withoutJSX = 'module.exports = {}';
+const withoutJSX = '/** @type {RuleModule} */
+module.exports = {}';
 
 // ------------------------------------------------------------------------------
 // Tests
