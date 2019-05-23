@@ -31,7 +31,9 @@ declare global {
     children: UnionTypeDefinitionChildren | true;
   };
   interface RuleModule {
-    create(context: Context): eslint.Rule.RuleListener;
+    create(context: Context): {
+      [key: string]: ((node: ASTNode) => void)
+    };
     meta?: eslint.Rule.RuleMetaData;
   }
 }
