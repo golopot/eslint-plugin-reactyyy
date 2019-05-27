@@ -3007,7 +3007,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3023,7 +3023,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'name\' PropType is defined but prop is never used',
         line: 3,
-        column: 11
+        column: 5
       }]
     }, {
       code: [
@@ -3040,7 +3040,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'name\' PropType is defined but prop is never used',
         line: 3,
-        column: 11
+        column: 5
       }]
     }, {
       code: [
@@ -3825,7 +3825,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3843,7 +3843,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3861,7 +3861,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3878,7 +3878,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3896,7 +3896,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3913,7 +3913,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3931,7 +3931,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3948,7 +3948,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3966,7 +3966,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -3983,7 +3983,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'unused\' PropType is defined but prop is never used',
         line: 3,
-        column: 13
+        column: 5
       }]
     }, {
       code: [
@@ -4000,7 +4000,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'something\' PropType is defined but prop is never used',
         line: 3,
-        column: 16
+        column: 5
       }]
     }, {
       code: [
@@ -4016,7 +4016,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'something\' PropType is defined but prop is never used',
         line: 3,
-        column: 16
+        column: 5
       }]
     }, {
       code: [
@@ -4037,7 +4037,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'bar\' PropType is defined but prop is never used',
         line: 4,
-        column: 10
+        column: 5
       }]
     }, {
       // Multiple props used inside of an async class property
@@ -4058,7 +4058,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'baz\' PropType is defined but prop is never used',
         line: 5,
-        column: 10
+        column: 5
       }]
     }, {
       code: [
@@ -4077,7 +4077,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'bar\' PropType is defined but prop is never used',
         line: 10,
-        column: 8
+        column: 3
       }]
     }, {
       code: [
@@ -4098,7 +4098,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'bar\' PropType is defined but prop is never used',
         line: 4,
-        column: 10
+        column: 5
       }]
     }, {
       // Multiple destructured props inside of async class property
@@ -4139,7 +4139,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'bar\' PropType is defined but prop is never used',
         line: 4,
-        column: 10
+        column: 5
       }]
     }, {
       code: [
@@ -4158,7 +4158,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'bar\' PropType is defined but prop is never used',
         line: 10,
-        column: 8
+        column: 3
       }]
     }, {
       code: [
@@ -4179,7 +4179,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'bar\' PropType is defined but prop is never used',
         line: 4,
-        column: 10
+        column: 5
       }]
     }, {
       // Multiple destructured props inside of async class method
@@ -4201,7 +4201,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'baz\' PropType is defined but prop is never used',
         line: 5,
-        column: 10
+        column: 5
       }]
     }, {
       // factory functions that return async functions
@@ -4224,7 +4224,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'baz\' PropType is defined but prop is never used',
         line: 5,
-        column: 10
+        column: 5
       }]
     }, {
       code: [
@@ -4243,7 +4243,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'bar\' PropType is defined but prop is never used',
         line: 10,
-        column: 8
+        column: 3
       }]
     }, {
       code: [
@@ -4262,7 +4262,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'bar\' PropType is defined but prop is never used',
         line: 10,
-        column: 8
+        column: 3
       }],
       settings: {
         propWrapperFunctions: ['forbidExtraProps']
@@ -4285,7 +4285,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'bar\' PropType is defined but prop is never used',
         line: 4,
-        column: 10
+        column: 5
       }],
       settings: {
         propWrapperFunctions: ['forbidExtraProps']
@@ -4311,7 +4311,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'foo\' PropType is defined but prop is never used',
         line: 3,
-        column: 10
+        column: 5
       }]
     }, {
       // Multiple props used inside of an async function
@@ -4335,7 +4335,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'baz\' PropType is defined but prop is never used',
         line: 13,
-        column: 8
+        column: 3
       }]
     }, {
       // Multiple props used inside of an async arrow function
@@ -4359,7 +4359,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: '\'foo\' PropType is defined but prop is never used',
         line: 11,
-        column: 8
+        column: 3
       }]
     }, { // None of the props are used issue #1162
       code: [
