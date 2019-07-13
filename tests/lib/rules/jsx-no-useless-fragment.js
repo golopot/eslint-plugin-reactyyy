@@ -164,7 +164,7 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
     },
     {
       code: '<div>a <>{""}{""}</> a</div>',
-      output: '<div>a {""}{""} a</div>',
+      output: null,
       errors: [{messageId: 'ChildOfHtmlElement'}],
       parser: parsers.BABEL_ESLINT
     }
