@@ -55,6 +55,10 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
     {
       code: '<div p={<>{"a"}{"b"}</>} />',
       parser: parsers.BABEL_ESLINT
+    },
+    {
+      code: '<Fragment key={item.id}>{item.value}</Fragment>',
+      parser: parsers.BABEL_ESLINT
     }
   ],
   invalid: [
