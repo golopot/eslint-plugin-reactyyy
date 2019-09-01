@@ -97,6 +97,18 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
       parser: parsers.BABEL_ESLINT
     },
     {
+      code: `
+        <>
+          <div/>
+        </>
+      `,
+      output: `
+        <div/>
+      `,
+      errors: [{messageId: 'NeedsMoreChidren'}],
+      parser: parsers.BABEL_ESLINT
+    },
+    {
       code: '<Fragment />',
       errors: [{messageId: 'NeedsMoreChidren'}]
     },
@@ -105,6 +117,9 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
         <React.Fragment>
           <Foo />
         </React.Fragment>
+      `,
+      output: `
+        <Foo />
       `,
       errors: [{messageId: 'NeedsMoreChidren'}]
     },
