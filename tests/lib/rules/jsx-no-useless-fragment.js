@@ -75,8 +75,26 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
       parser: parsers.BABEL_ESLINT
     },
     {
-      code: '<><div/></>',
+      code: '<p>moo<>foo</></p>',
+      output: '<p>moofoo</p>',
+      errors: [{messageId: 'NeedsMoreChidren'}, {messageId: 'ChildOfHtmlElement'}],
+      parser: parsers.BABEL_ESLINT
+    },
+    {
+      code: '<>{meow}</>',
       output: null,
+      errors: [{messageId: 'NeedsMoreChidren'}],
+      parser: parsers.BABEL_ESLINT
+    },
+    {
+      code: '<p><>{meow}</></p>',
+      output: '<p>{meow}</p>',
+      errors: [{messageId: 'NeedsMoreChidren'}, {messageId: 'ChildOfHtmlElement'}],
+      parser: parsers.BABEL_ESLINT
+    },
+    {
+      code: '<><div/></>',
+      output: '<div/>',
       errors: [{messageId: 'NeedsMoreChidren'}],
       parser: parsers.BABEL_ESLINT
     },
@@ -151,20 +169,27 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
       errors: [{messageId: 'ChildOfHtmlElement'}]
     },
     {
+      // whitepace tricky case
       code: `
-        // not safe to fix
         <section>
           git<>
             <b>hub</b>.
           </>
+
+          git<> <b>hub</b></>
         </section>`,
-      output: null,
-      errors: [{messageId: 'ChildOfHtmlElement'}],
+      output: `
+        <section>
+          git<b>hub</b>.
+
+          git <b>hub</b>
+        </section>`,
+      errors: [{messageId: 'ChildOfHtmlElement'}, {messageId: 'ChildOfHtmlElement'}],
       parser: parsers.BABEL_ESLINT
     },
     {
       code: '<div>a <>{""}{""}</> a</div>',
-      output: null,
+      output: '<div>a {""}{""} a</div>',
       errors: [{messageId: 'ChildOfHtmlElement'}],
       parser: parsers.BABEL_ESLINT
     }
