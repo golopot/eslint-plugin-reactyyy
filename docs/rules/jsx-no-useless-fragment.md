@@ -9,11 +9,11 @@ A fragment is redundant if it contains only one child, or if it is the child of 
 The following patterns are considered warnings:
 
 ```jsx
-<>foo</>
-
 <>{foo}</>
 
 <><Foo /></>
+
+<p><>foo</></p>
 
 <></>
 
@@ -40,6 +40,8 @@ The following patterns are **not** considered warnings:
 <>foo {bar}</>
 
 <> {foo}</>
+
+const cat = <>meow</>
 
 <SomeComponent>
   <>

@@ -59,6 +59,10 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
     {
       code: '<Fragment key={item.id}>{item.value}</Fragment>',
       parser: parsers.BABEL_ESLINT
+    },
+    {
+      code: '<Fooo content={<>eeee ee eeeeeee eeeeeeee</>} />',
+      parser: parsers.BABEL_ESLINT
     }
   ],
   invalid: [
@@ -66,12 +70,6 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
       code: '<></>',
       output: null,
       errors: [{messageId: 'NeedsMoreChidren', type: 'JSXFragment'}],
-      parser: parsers.BABEL_ESLINT
-    },
-    {
-      code: '<>foo</>',
-      output: null,
-      errors: [{messageId: 'NeedsMoreChidren'}],
       parser: parsers.BABEL_ESLINT
     },
     {
