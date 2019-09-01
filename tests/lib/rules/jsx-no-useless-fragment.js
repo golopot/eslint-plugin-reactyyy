@@ -123,11 +123,6 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
       errors: [{messageId: 'NeedsMoreChidren'}]
     },
     {
-      code: '<></>',
-      errors: [{messageId: 'NeedsMoreChidren'}],
-      parser: parsers.BABEL_ESLINT
-    },
-    {
       code: '<Eeee><>foo</></Eeee>',
       output: '<Eeee>foo</Eeee>',
       errors: [{messageId: 'NeedsMoreChidren'}],
