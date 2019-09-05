@@ -138,8 +138,9 @@ ruleTester.run('jsx-no-uselses-fragment', rule, {
       errors: [{messageId: 'NeedsMoreChidren'}]
     },
     {
+      // Not safe to fix this case because `Eeee` might require child be ReactElement
       code: '<Eeee><>foo</></Eeee>',
-      output: '<Eeee>foo</Eeee>',
+      output: null,
       errors: [{messageId: 'NeedsMoreChidren'}],
       parser: parsers.BABEL_ESLINT
     },
