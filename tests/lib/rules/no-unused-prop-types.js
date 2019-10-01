@@ -1826,6 +1826,25 @@ ruleTester.run('no-unused-prop-types', rule, {
         '};'
       ].join('\n')
     }, {
+      // Nested destructuring; issue 2424
+      code: `
+        function myStatelessComponent(props) {
+          const { test: { foo, bar } } = props;
+          return (
+            <div>
+              {foo} {bar}
+            </div>
+          );
+        }
+
+        myStatelessComponent.propTypes = {
+          test: PropTypes.shape({
+            foo: PropTypes.string.isRequired,
+            bar: PropTypes.string.isRequired
+          }).isRequired
+        };
+      `
+    }, {
       // `no-unused-prop-types` in jsx expressions - [Issue #885]
       code: [
         'const PagingBlock = function(props) {',
@@ -1864,7 +1883,7 @@ ruleTester.run('no-unused-prop-types', rule, {
             const { a } = props;
             document.title = a;
           });
-          
+
           return <p/>;
         }
 
