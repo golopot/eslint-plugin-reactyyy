@@ -4739,7 +4739,7 @@ ruleTester.run('no-unused-prop-types', rule, {
       errors: [{
         message: "'unusedProp' PropType is defined but prop is never used",
         line: 7,
-        column: 23
+        column: 11
       }]
     }, {
       code: `
