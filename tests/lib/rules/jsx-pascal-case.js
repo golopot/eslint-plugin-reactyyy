@@ -12,6 +12,8 @@
 const RuleTester = require('eslint').RuleTester;
 const rule = require('../../../lib/rules/jsx-pascal-case');
 
+const parsers = require('../../helpers/parsers');
+
 const parserOptions = {
   ecmaVersion: 2018,
   sourceType: 'module',
@@ -43,19 +45,35 @@ ruleTester.run('jsx-pascal-case', rule, {
   }, {
     code: '<TestComponent1 />'
   }, {
-    code: '<T3stComp0nent />'
+    code: '<T3StComp0Nent />'
   }, {
-    code: '<T />'
+    code: '<Éurströmming />'
+  }, {
+    code: '<Año />'
+  }, {
+    code: '<Søknad />'
+  }, {
+    code: '<T />',
+    parser: parsers.BABEL_ESLINT
   }, {
     code: '<YMCA />',
     options: [{allowAllCaps: true}]
   }, {
+    code: '<TEST_COMPONENT />',
+    options: [{allowAllCaps: true}]
+  }, {
     code: '<Modal.Header />'
+  }, {
+    code: '<qualification.T3StComp0Nent />'
   }, {
     code: '<Modal:Header />'
   }, {
     code: '<IGNORED />',
     options: [{ignore: ['IGNORED']}]
+  }, {
+    code: '<$ />'
+  }, {
+    code: '<_ />'
   }],
 
   invalid: [{
@@ -67,5 +85,20 @@ ruleTester.run('jsx-pascal-case', rule, {
   }, {
     code: '<YMCA />',
     errors: [{message: 'Imported JSX component YMCA must be in PascalCase'}]
+  }, {
+    code: '<_TEST_COMPONENT />',
+    options: [{allowAllCaps: true}],
+    errors: [{message: 'Imported JSX component _TEST_COMPONENT must be in PascalCase or SCREAMING_SNAKE_CASE'}]
+  }, {
+    code: '<TEST_COMPONENT_ />',
+    options: [{allowAllCaps: true}],
+    errors: [{message: 'Imported JSX component TEST_COMPONENT_ must be in PascalCase or SCREAMING_SNAKE_CASE'}]
+  }, {
+    code: '<__ />',
+    options: [{allowAllCaps: true}],
+    errors: [{message: 'Imported JSX component __ must be in PascalCase or SCREAMING_SNAKE_CASE'}]
+  }, {
+    code: '<$a />',
+    errors: [{message: 'Imported JSX component $a must be in PascalCase'}]
   }]
 });

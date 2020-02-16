@@ -36,6 +36,10 @@ ruleTester.run('jsx-no-target-blank', rule, {
     {code: '<a randomTag></a>'},
     {code: '<a target />'},
     {code: '<a href="foobar" target="_blank" rel="noopener noreferrer"></a>'},
+    {code: '<a href="foobar" target="_blank" rel={"noopener noreferrer"}></a>'},
+    {code: '<a href={"foobar"} target={"_blank"} rel={"noopener noreferrer"}></a>'},
+    {code: '<a href={\'foobar\'} target={\'_blank\'} rel={\'noopener noreferrer\'}></a>'},
+    {code: '<a href={`foobar`} target={`_blank`} rel={`noopener noreferrer`}></a>'},
     {code: '<a target="_blank" {...spreadProps} rel="noopener noreferrer"></a>'},
     {code: '<a {...spreadProps} target="_blank" rel="noopener noreferrer" href="http://example.com">s</a>'},
     {code: '<a target="_blank" rel="noopener noreferrer" {...spreadProps}></a>'},
@@ -43,10 +47,22 @@ ruleTester.run('jsx-no-target-blank', rule, {
     {code: '<a href="foobar" target="_BLANK" rel="NOOPENER noreferrer"></a>'},
     {code: '<a target="_blank" rel={relValue}></a>'},
     {code: '<a target={targetValue} rel="noopener noreferrer"></a>'},
+    {code: '<a target={targetValue} rel={"noopener noreferrer"}></a>'},
     {code: '<a target={targetValue} href="relative/path"></a>'},
     {code: '<a target={targetValue} href="/absolute/path"></a>'},
+    {code: '<a target={\'targetValue\'} href="/absolute/path"></a>'},
+    {code: '<a target={"targetValue"} href="/absolute/path"></a>'},
+    {code: '<a target={null} href="//example.com"></a>'},
     {
       code: '<a target="_blank" href={ dynamicLink }></a>',
+      options: [{enforceDynamicLinks: 'never'}]
+    },
+    {
+      code: '<a target={"_blank"} href={ dynamicLink }></a>',
+      options: [{enforceDynamicLinks: 'never'}]
+    },
+    {
+      code: '<a target={\'_blank\'} href={ dynamicLink }></a>',
       options: [{enforceDynamicLinks: 'never'}]
     },
     {
@@ -58,6 +74,10 @@ ruleTester.run('jsx-no-target-blank', rule, {
       code: '<Link target="_blank" to={ dynamicLink }></Link>',
       options: [{enforceDynamicLinks: 'never'}],
       settings: {linkComponents: {name: 'Link', linkAttribute: 'to'}}
+    },
+    {
+      code: '<a href="foobar" target="_blank" rel="noopener"></a>',
+      options: [{allowReferrer: true}]
     }
   ],
   invalid: [{
@@ -85,10 +105,22 @@ ruleTester.run('jsx-no-target-blank', rule, {
     code: '<a target="_blank" href="//example.com" rel={null}></a>',
     errors: defaultErrors
   }, {
+    code: '<a target="_blank" href="//example.com" rel={"noopenernoreferrer"}></a>',
+    errors: defaultErrors
+  }, {
+    code: '<a target={"_blank"} href={"//example.com"} rel={"noopenernoreferrer"}></a>',
+    errors: defaultErrors
+  }, {
     code: '<a target="_blank" href="//example.com" rel></a>',
     errors: defaultErrors
   }, {
     code: '<a target="_blank" href={ dynamicLink }></a>',
+    errors: defaultErrors
+  }, {
+    code: '<a target={\'_blank\'} href="//example.com"></a>',
+    errors: defaultErrors
+  }, {
+    code: '<a target={"_blank"} href="//example.com"></a>',
     errors: defaultErrors
   }, {
     code: '<a target="_blank" href={ dynamicLink }></a>',

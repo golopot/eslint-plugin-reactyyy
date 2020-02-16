@@ -14,10 +14,11 @@ This rule aims to prevent user generated links from creating security vulnerabil
 ## Rule Options
 ```json
 ...
-"react/jsx-no-target-blank": [<enabled>, { "enforceDynamicLinks": <enforce> }]
+"react/jsx-no-target-blank": [<enabled>, { "allowReferrer": <allow-referrer>, "enforceDynamicLinks": <enforce> }]
 ...
 ```
 
+* allow-referrer: optional boolean. If `true` does not require `noreferrer`. Defaults to `false`.
 * enabled: for enabling the rule. 0=off, 1=warn, 2=error. Defaults to 0.
 * enforce: optional string, 'always' or 'never'
 
@@ -74,6 +75,9 @@ var Hello = <Link target="_blank" to="/absolute/path/in/the/host"></Link>
 var Hello = <Link />
 ```
 
+## When To Override It
+For links to a trusted host (e.g. internal links to your own site, or links to a another host you control, where you can be certain this security vulnerability does not exist), you may want to keep the HTTP Referer header for analytics purposes.
+
 ## When Not To Use It
 
-If you do not have any external links, you can disable this rule
+If you do not have any external links, you can disable this rule.

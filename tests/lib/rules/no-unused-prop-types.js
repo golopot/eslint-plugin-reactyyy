@@ -480,6 +480,75 @@ ruleTester.run('no-unused-prop-types', rule, {
       ].join('\n'),
       parser: parsers.BABEL_ESLINT
     }, {
+      code: `
+        function Foo({ a }) {
+          return <>{ a.b }</>
+        }
+        Foo.propTypes = {
+          a: PropTypes.shape({
+            b: PropType.string,
+          })
+        }
+      `,
+      options: [{skipShapeProps: false}],
+      parser: parsers.BABEL_ESLINT
+    }, {
+      code: `
+        function Foo({ a }) {
+          const { b } = a
+          return <>{ b.c }</>
+        }
+        Foo.propTypes = {
+          a: PropTypes.shape({
+            b: PropType.shape({
+              c: PropTypes.string,
+            }),
+          })
+        }
+      `,
+      options: [{skipShapeProps: false}],
+      parser: parsers.BABEL_ESLINT
+    }, {
+      // Destructured assignment with Shape propTypes with skipShapeProps off issue #816
+      code: `
+        class Thing extends React.Component {
+          static propTypes = {
+            i18n: PropTypes.shape({
+              gettext: PropTypes.func,
+            }),
+          }
+
+          render() {
+            const { i18n } = this.props;
+            return (
+              <p>{i18n.gettext('Some Text')}</p>
+            );
+          }
+        }
+      `,
+      parser: parsers.BABEL_ESLINT,
+      options: [{skipShapeProps: false}]
+    },
+    {
+      code: `
+        class Thing extends React.Component {
+          static propTypes = {
+            a: PropTypes.shape({
+              b: PropTypes.string,
+            }),
+          }
+
+          render() {
+            const { a } = this.props;
+            return (
+              <p>{ a.b }</p>
+            );
+          }
+        }
+      `,
+      parser: parsers.BABEL_ESLINT,
+      options: [{skipShapeProps: false}]
+    }, {
       code: [
         'var Hello = createReactClass({',
         '  propTypes: {',
@@ -1021,6 +1090,30 @@ ruleTester.run('no-unused-prop-types', rule, {
         '  props: Props;',
         '  render () {',
         '    return <div>Hello {this.props.result.ok}</div>;',
+        '  }',
+        '}'
+      ].join('\n'),
+      parser: parsers.BABEL_ESLINT
+    }, {
+      code: [
+        'type Props = {notTarget: string};',
+        'class Hello extends React.Component {',
+        '  props: Props;',
+        '  onEvent({ target }: { target: Object }) {};',
+        '  render () {',
+        '    return <div>Hello {this.props.notTarget}</div>;',
+        '  }',
+        '}'
+      ].join('\n'),
+      parser: parsers.BABEL_ESLINT
+    }, {
+      code: [
+        'type Props = {notTarget: string};',
+        'class Hello extends React.Component {',
+        '  props: Props;',
+        '  onEvent(infos: { target: Object }) {};',
+        '  render () {',
+        '    return <div>Hello {this.props.notTarget}</div>;',
         '  }',
         '}'
       ].join('\n'),
@@ -1757,6 +1850,18 @@ ruleTester.run('no-unused-prop-types', rule, {
         '};'
       ].join('\n')
     }, {
+      // Nested destructuring; issue 2424
+      code: `
+        function SomeComponent(props) {
+          const {aaa: {bbb}} = props;
+          return <p>{bbb}</p>;
+        }
+
+        SomeComponent.propTypes = {
+          aaa: somePropType,
+        };
+      `
+    }, {
       // `no-unused-prop-types` in jsx expressions - [Issue #885]
       code: [
         'const PagingBlock = function(props) {',
@@ -1787,6 +1892,22 @@ ruleTester.run('no-unused-prop-types', rule, {
         '  previousPage: PropTypes.func.isRequired,',
         '};'
       ].join('\n')
+    }, {
+      // issue 2350
+      code: `
+        function Foo(props) {
+          useEffect(() => {
+            const { a } = props;
+            document.title = a;
+          });
+
+          return <p/>;
+        }
+
+        Foo.propTypes = {
+          a: PropTypes.string,
+        }
+      `
     }, {
       code: [
         'class Hello extends Component {',
@@ -2458,6 +2579,21 @@ ruleTester.run('no-unused-prop-types', rule, {
       ].join('\n'),
       parser: parsers.BABEL_ESLINT
     }, {
+      code: `
+        class Hello extends React.Component {
+          render() {
+            const {foo: {bar}} = this.props;
+            return <div>{bar}</div>;
+          }
+        }
+        Hello.propTypes = {
+          foo: PropTypes.shape({
+            bar: PropTypes.string,
+          })
+        };
+      `,
+      options: [{skipShapeProps: false}]
+    }, {
       // issue #933
       code: [
         'type Props = {',
@@ -2625,6 +2761,17 @@ ruleTester.run('no-unused-prop-types', rule, {
           ...SharedPropTypes // eslint-disable-line object-shorthand
         };
       `,
+      parser: parsers.BABEL_ESLINT
+    }, {
+      code: [
+        'type Props = $ReadOnly<{foo: number}>;',
+        'class Hello extends React.Component {',
+        '  props: Props;',
+        '  render () {',
+        '    return <div>{this.props.foo}</div>;',
+        '  }',
+        '}'
+      ].join('\n'),
       parser: parsers.BABEL_ESLINT
     }, {
       // issue #933
@@ -2978,8 +3125,7 @@ ruleTester.run('no-unused-prop-types', rule, {
         }
       `,
       parser: parsers.BABEL_ESLINT
-    },
-    {
+    }, {
       code: `
         export default class Foo extends React.Component {
           render() {
@@ -2989,6 +3135,82 @@ ruleTester.run('no-unused-prop-types', rule, {
 
         Foo.defaultProps = Object.assign({});
       `
+    }, {
+      code: `
+        const Foo = (props) => {
+          const { foo } = props as unknown;
+          (props as unknown).bar as unknown;
+
+          return <></>;
+        };
+
+        Foo.propTypes = {
+          foo,
+          bar,
+        };
+      `,
+      parser: parsers.TYPESCRIPT_ESLINT
+    }, {
+      code: `
+        class Foo extends React.Component {
+          static propTypes = {
+            prevProp,
+            nextProp,
+            setStateProp,
+            thisPropsAliasDestructProp,
+            thisPropsAliasProp,
+            thisDestructPropsAliasDestructProp,
+            thisDestructPropsAliasProp,
+            thisDestructPropsDestructProp,
+            thisPropsDestructProp,
+            thisPropsProp,
+          };
+
+          componentDidUpdate(prevProps) {
+            (prevProps as unknown).prevProp as unknown;
+          }
+
+          shouldComponentUpdate(nextProps) {
+            (nextProps as unknown).nextProp as unknown;
+          }
+
+          stateProps() {
+            ((this as unknown).setState as unknown)((_, props) => (props as unknown).setStateProp as unknown);
+          }
+
+          thisPropsAlias() {
+            const props = (this as unknown).props as unknown;
+
+            const { thisPropsAliasDestructProp } = props as unknown;
+            (props as unknown).thisPropsAliasProp as unknown;
+          }
+
+          thisDestructPropsAlias() {
+            const { props } = this as unknown;
+
+            const { thisDestructPropsAliasDestructProp } = props as unknown;
+            (props as unknown).thisDestructPropsAliasProp as unknown;
+          }
+
+          render() {
+            const { props: { thisDestructPropsDestructProp } } = this as unknown;
+            const { thisPropsDestructProp } = (this as unknown).props as unknown;
+            ((this as unknown).props as unknown).thisPropsProp as unknown;
+
+            return null;
+          }
+        }
+      `,
+      parser: parsers.TYPESCRIPT_ESLINT
+    },
+    {
+      code: [
+        'declare class Thing {',
+        '  constructor({ id }: { id: string });',
+        '}',
+        'export default Thing;'
+      ].join('\n'),
+      parser: parsers.TYPESCRIPT_ESLINT
     }
   ],
 
@@ -3561,6 +3783,20 @@ ruleTester.run('no-unused-prop-types', rule, {
     }, {
       code: [
         'type Props = {unused: Object;};',
+        'class Hello extends React.Component {',
+        '  props: Props;',
+        '  render () {',
+        '    return <div>Hello {this.props.firstname}</div>;',
+        '  }',
+        '}'
+      ].join('\n'),
+      parser: parsers.BABEL_ESLINT,
+      errors: [
+        {message: '\'unused\' PropType is defined but prop is never used'}
+      ]
+    }, {
+      code: [
+        'type Props = $ReadOnly<{unused: Object;}>;',
         'class Hello extends React.Component {',
         '  props: Props;',
         '  render () {',
@@ -4361,7 +4597,8 @@ ruleTester.run('no-unused-prop-types', rule, {
         line: 11,
         column: 3
       }]
-    }, { // None of the props are used issue #1162
+    }, {
+      // None of the props are used issue #1162
       code: [
         'import React from "react"; ',
         'var Hello = React.createReactClass({',
@@ -4458,27 +4695,6 @@ ruleTester.run('no-unused-prop-types', rule, {
         message: '\'prop2.*\' PropType is defined but prop is never used'
       }]
     }, {
-      // Destructured assignment with Shape propTypes with skipShapeProps off issue #816
-      code: [
-        'export default class NavigationButton extends React.Component {',
-        ' static propTypes = {',
-        '   route: PropTypes.shape({',
-        '    getBarTintColor: PropTypes.func.isRequired,',
-        '  }).isRequired,',
-        ' };',
-
-        ' renderTitle() {',
-        '  const { route } = this.props;',
-        '   return <Title tintColor={route.getBarTintColor()}>TITLE</Title>;',
-        ' }',
-        '}'
-      ].join('\n'),
-      parser: parsers.BABEL_ESLINT,
-      options: [{skipShapeProps: false}],
-      errors: [{
-        message: '\'route.getBarTintColor\' PropType is defined but prop is never used'
-      }]
-    }, {
       code: [
         // issue #1097
         'class HelloGraphQL extends Component {',
@@ -4501,6 +4717,29 @@ ruleTester.run('no-unused-prop-types', rule, {
       parser: parsers.BABEL_ESLINT,
       errors: [{
         message: '\'aProp\' PropType is defined but prop is never used'
+      }]
+    }, {
+      // issue #2138
+      code: `
+        type UsedProps = {|
+          usedProp: number,
+        |};
+
+        type UnusedProps = {|
+          unusedProp: number,
+        |};
+
+        type Props = {| ...UsedProps, ...UnusedProps |};
+
+        function MyComponent({ usedProp, notOne }: Props) {
+          return <div>{usedProp}</div>;
+        }
+      `,
+      parser: parsers.BABEL_ESLINT,
+      errors: [{
+        message: "'unusedProp' PropType is defined but prop is never used",
+        line: 7,
+        column: 23
       }]
     }, {
       code: `
@@ -4887,40 +5126,6 @@ ruleTester.run('no-unused-prop-types', rule, {
       }]
     }, {
       code: [
-        'type Person = {',
-        '  ...data,',
-        '  lastname: string',
-        '};',
-        'class Hello extends React.Component {',
-        '  props: Person;',
-        '  render () {',
-        '    return <div>Hello {this.props.firstname}</div>;',
-        '  }',
-        '}'
-      ].join('\n'),
-      parser: parsers.BABEL_ESLINT,
-      errors: [{
-        message: '\'lastname\' PropType is defined but prop is never used'
-      }]
-    }, {
-      code: [
-        'type Person = {|',
-        '  ...data,',
-        '  lastname: string',
-        '|};',
-        'class Hello extends React.Component {',
-        '  props: Person;',
-        '  render () {',
-        '    return <div>Hello {this.props.firstname}</div>;',
-        '  }',
-        '}'
-      ].join('\n'),
-      parser: parsers.BABEL_ESLINT,
-      errors: [{
-        message: '\'lastname\' PropType is defined but prop is never used'
-      }]
-    }, {
-      code: [
         'class Hello extends React.Component {',
         '  render () {',
         '    return <div>Hello {this.props.firstname}</div>;',
@@ -4976,6 +5181,21 @@ ruleTester.run('no-unused-prop-types', rule, {
         message: '\'person.lastname\' PropType is defined but prop is never used'
       }]
     }, {
+      code: [
+        'type Props = {notTarget: string, unused: string};',
+        'class Hello extends React.Component {',
+        '  props: Props;',
+        '  onEvent = ({ target }: { target: Object }) => {};',
+        '  render () {',
+        '    return <div>Hello {this.props.notTarget}</div>;',
+        '  }',
+        '}'
+      ].join('\n'),
+      parser: parsers.BABEL_ESLINT,
+      errors: [
+        {message: '\'unused\' PropType is defined but prop is never used'}
+      ]
+    }, {
       code: `
         import PropTypes from 'prop-types';
         import React from 'react';
@@ -4998,6 +5218,99 @@ ruleTester.run('no-unused-prop-types', rule, {
       `,
       errors: [{
         message: '\'unUsedProp\' PropType is defined but prop is never used'
+      }]
+    }, {
+      code: `
+        const Foo = (props) => {
+          const { foo } = props as unknown;
+          (props as unknown).bar as unknown;
+
+          return <></>;
+        };
+
+        Foo.propTypes = {
+          fooUnused,
+          barUnused,
+        };
+      `,
+      parser: parsers.TYPESCRIPT_ESLINT,
+      errors: [{
+        message: '\'fooUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'barUnused\' PropType is defined but prop is never used'
+      }]
+    }, {
+      code: `
+        class Foo extends React.Component {
+          static propTypes = {
+            prevPropUnused,
+            nextPropUnused,
+            setStatePropUnused,
+            thisPropsAliasDestructPropUnused,
+            thisPropsAliasPropUnused,
+            thisDestructPropsAliasDestructPropUnused,
+            thisDestructPropsAliasPropUnused,
+            thisDestructPropsDestructPropUnused,
+            thisPropsDestructPropUnused,
+            thisPropsPropUnused,
+          };
+
+          componentDidUpdate(prevProps) {
+            (prevProps as unknown).prevProp as unknown;
+          }
+
+          shouldComponentUpdate(nextProps) {
+            (nextProps as unknown).nextProp as unknown;
+          }
+
+          stateProps() {
+            ((this as unknown).setState as unknown)((_, props) => (props as unknown).setStateProp as unknown);
+          }
+
+          thisPropsAlias() {
+            const props = (this as unknown).props as unknown;
+
+            const { thisPropsAliasDestructProp } = props as unknown;
+            (props as unknown).thisPropsAliasProp as unknown;
+          }
+
+          thisDestructPropsAlias() {
+            const { props } = this as unknown;
+
+            const { thisDestructPropsAliasDestructProp } = props as unknown;
+            (props as unknown).thisDestructPropsAliasProp as unknown;
+          }
+
+          render() {
+            const { props: { thisDestructPropsDestructProp } } = this as unknown;
+            const { thisPropsDestructProp } = (this as unknown).props as unknown;
+            ((this as unknown).props as unknown).thisPropsProp as unknown;
+
+            return null;
+          }
+        }
+      `,
+      parser: parsers.TYPESCRIPT_ESLINT,
+      errors: [{
+        message: '\'prevPropUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'nextPropUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'setStatePropUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'thisPropsAliasDestructPropUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'thisPropsAliasPropUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'thisDestructPropsAliasDestructPropUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'thisDestructPropsAliasPropUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'thisDestructPropsDestructPropUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'thisPropsDestructPropUnused\' PropType is defined but prop is never used'
+      }, {
+        message: '\'thisPropsPropUnused\' PropType is defined but prop is never used'
       }]
     }
 

@@ -27,7 +27,8 @@ const parserOptions = {
 
 const ERROR_MESSAGE = 'Typo in static class property declaration';
 const ERROR_MESSAGE_ES5 = 'Typo in property declaration';
-const ERROR_MESSAGE_LIFECYCLE_METHOD = 'Typo in component lifecycle method declaration';
+const ERROR_MESSAGE_LIFECYCLE_METHOD = (actual, expected) => `Typo in component lifecycle method declaration: ${actual} should be ${expected}`;
+const ERROR_MESSAGE_STATIC = method => `Lifecycle method should be static: ${method}`;
 
 const ruleTester = new RuleTester();
 ruleTester.run('no-typos', rule, {
@@ -190,6 +191,7 @@ ruleTester.run('no-typos', rule, {
   }, {
     code: `
       class Hello extends React.Component {
+        static getDerivedStateFromProps() { }
         componentWillMount() { }
         componentDidMount() { }
         componentWillReceiveProps() { }
@@ -200,6 +202,14 @@ ruleTester.run('no-typos', rule, {
         render() {
           return <div>Hello {this.props.name}</div>;
         }
+      }
+    `,
+    parserOptions
+  }, {
+    code: `
+      class Hello extends React.Component {
+        "componentDidMount"() { }
+        "my-method"() { }
       }
     `,
     parserOptions
@@ -337,19 +347,6 @@ ruleTester.run('no-typos', rule, {
     code: `
       import PropTypes from "prop-types";
       class Component extends React.Component {};
-      Component.propTypes = {
-        a: PropTypes.oneOf([
-          'hello',
-          'hi'
-        ])
-      }
-   `,
-    parser: parsers.BABEL_ESLINT,
-    parserOptions
-  }, {
-    code: `
-      import PropTypes from "prop-types";
-      class Component extends React.Component {};
       Component.childContextTypes = {
         a: PropTypes.string,
         b: PropTypes.string.isRequired,
@@ -405,21 +402,6 @@ ruleTester.run('no-typos', rule, {
         b: CustomReact.PropTypes.string,
       }
    `,
-    parserOptions
-  }, {
-    code: `
-      import PropTypes from "prop-types";
-      class Component extends React.Component {};
-      Component.childContextTypes = {
-        a: PropTypes.string,
-        b: PropTypes.string.isRequired,
-        c: PropTypes.shape({
-          d: PropTypes.string,
-          e: PropTypes.number.isRequired,
-        }).isRequired
-      }
-   `,
-    parser: parsers.BABEL_ESLINT,
     parserOptions
   }, {
     code: `
@@ -646,21 +628,21 @@ ruleTester.run('no-typos', rule, {
     `,
     parser: parsers.BABEL_ESLINT,
     parserOptions,
-    errors: [{message: ERROR_MESSAGE}]
+    errors: [{message: ERROR_MESSAGE, type: 'Identifier'}]
   }, {
     code: `
       class Component extends React.Component {}
       Component.PropTypes = {}
     `,
     parserOptions,
-    errors: [{message: ERROR_MESSAGE}]
+    errors: [{message: ERROR_MESSAGE, type: 'Identifier'}]
   }, {
     code: `
       function MyComponent() { return (<div>{this.props.myProp}</div>) }
       MyComponent.PropTypes = {}
     `,
     parserOptions,
-    errors: [{message: ERROR_MESSAGE}]
+    errors: [{message: ERROR_MESSAGE, type: 'Identifier'}]
   }, {
     code: `
       class Component extends React.Component {
@@ -692,7 +674,7 @@ ruleTester.run('no-typos', rule, {
     `,
     parser: parsers.BABEL_ESLINT,
     parserOptions,
-    errors: [{message: ERROR_MESSAGE}]
+    errors: [{message: ERROR_MESSAGE, type: 'Identifier'}]
   }, {
     code: `
       class Component extends React.Component {}
@@ -784,21 +766,21 @@ ruleTester.run('no-typos', rule, {
     `,
     parser: parsers.BABEL_ESLINT,
     parserOptions,
-    errors: [{message: ERROR_MESSAGE}]
+    errors: [{message: ERROR_MESSAGE, type: 'Identifier'}]
   }, {
     code: `
       class Component extends React.Component {}
       Component.DefaultProps = {}
     `,
     parserOptions,
-    errors: [{message: ERROR_MESSAGE}]
+    errors: [{message: ERROR_MESSAGE, type: 'Identifier'}]
   }, {
     code: `
       function MyComponent() { return (<div>{this.props.myProp}</div>) }
       MyComponent.DefaultProps = {}
     `,
     parserOptions,
-    errors: [{message: ERROR_MESSAGE}]
+    errors: [{message: ERROR_MESSAGE, type: 'Identifier'}]
   }, {
     code: `
       class Component extends React.Component {
@@ -860,43 +842,43 @@ ruleTester.run('no-typos', rule, {
     `,
     parserOptions,
     errors: [{
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('GetDerivedStateFromProps', 'getDerivedStateFromProps'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillMount', 'componentWillMount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('UNSAFE_ComponentWillMount', 'UNSAFE_componentWillMount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentDidMount', 'componentDidMount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillReceiveProps', 'componentWillReceiveProps'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('UNSAFE_ComponentWillReceiveProps', 'UNSAFE_componentWillReceiveProps'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ShouldComponentUpdate', 'shouldComponentUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillUpdate', 'componentWillUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('UNSAFE_ComponentWillUpdate', 'UNSAFE_componentWillUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('GetSnapshotBeforeUpdate', 'getSnapshotBeforeUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentDidUpdate', 'componentDidUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentDidCatch', 'componentDidCatch'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillUnmount', 'componentWillUnmount'),
       type: 'MethodDefinition'
     }]
   }, {
@@ -922,47 +904,47 @@ ruleTester.run('no-typos', rule, {
     `,
     parserOptions,
     errors: [{
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Getderivedstatefromprops', 'getDerivedStateFromProps'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Componentwillmount', 'componentWillMount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('UNSAFE_Componentwillmount', 'UNSAFE_componentWillMount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Componentdidmount', 'componentDidMount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Componentwillreceiveprops', 'componentWillReceiveProps'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('UNSAFE_Componentwillreceiveprops', 'UNSAFE_componentWillReceiveProps'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Shouldcomponentupdate', 'shouldComponentUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Componentwillupdate', 'componentWillUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('UNSAFE_Componentwillupdate', 'UNSAFE_componentWillUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Getsnapshotbeforeupdate', 'getSnapshotBeforeUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Componentdidupdate', 'componentDidUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Componentdidcatch', 'componentDidCatch'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Componentwillunmount', 'componentWillUnmount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
-      type: 'MethodDefinition'
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('Render', 'render'),
+      nodeType: 'MethodDefinition'
     }]
   }, {
     code: `
@@ -987,43 +969,43 @@ ruleTester.run('no-typos', rule, {
     `,
     parserOptions,
     errors: [{
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('getderivedstatefromprops', 'getDerivedStateFromProps'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('componentwillmount', 'componentWillMount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('unsafe_componentwillmount', 'UNSAFE_componentWillMount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('componentdidmount', 'componentDidMount'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('componentwillreceiveprops', 'componentWillReceiveProps'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('unsafe_componentwillreceiveprops', 'UNSAFE_componentWillReceiveProps'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('shouldcomponentupdate', 'shouldComponentUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('componentwillupdate', 'componentWillUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('unsafe_componentwillupdate', 'UNSAFE_componentWillUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('getsnapshotbeforeupdate', 'getSnapshotBeforeUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('componentdidupdate', 'componentDidUpdate'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('componentdidcatch', 'componentDidCatch'),
       type: 'MethodDefinition'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('componentwillunmount', 'componentWillUnmount'),
       type: 'MethodDefinition'
     }]
   }, {
@@ -1366,6 +1348,7 @@ ruleTester.run('no-typos', rule, {
        }).isrequired
      }
     `,
+    parser: parsers.BABEL_ESLINT,
     parserOptions,
     errors: [{
       message: 'Typo in prop type chain qualifier: isrequired'
@@ -1594,34 +1577,61 @@ ruleTester.run('no-typos', rule, {
     parserOptions,
     errors: [{
       message: ERROR_MESSAGE_ES5,
-      type: 'ObjectExpression'
+      type: 'Identifier'
     }, {
       message: ERROR_MESSAGE_ES5,
-      type: 'ObjectExpression'
+      type: 'Identifier'
     }, {
       message: ERROR_MESSAGE_ES5,
-      type: 'ObjectExpression'
+      type: 'Identifier'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillMount', 'componentWillMount'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentDidMount', 'componentDidMount'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillReceiveProps', 'componentWillReceiveProps'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ShouldComponentUpdate', 'shouldComponentUpdate'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillUpdate', 'componentWillUpdate'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentDidUpdate', 'componentDidUpdate'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillUnmount', 'componentWillUnmount'),
       type: 'Property'
+    }]
+  }, {
+    code: `
+      class Hello extends React.Component {
+        getDerivedStateFromProps() { }
+      }
+    `,
+    parser: parsers.BABEL_ESLINT,
+    parserOptions,
+    errors: [{
+      message: ERROR_MESSAGE_STATIC('getDerivedStateFromProps'),
+      nodeType: 'MethodDefinition'
+    }]
+  }, {
+    code: `
+      class Hello extends React.Component {
+        GetDerivedStateFromProps() { }
+      }
+    `,
+    parser: parsers.BABEL_ESLINT,
+    parserOptions,
+    errors: [{
+      message: ERROR_MESSAGE_STATIC('GetDerivedStateFromProps'),
+      nodeType: 'MethodDefinition'
+    }, {
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('GetDerivedStateFromProps', 'getDerivedStateFromProps'),
+      nodeType: 'MethodDefinition'
     }]
   }, {
     code: `
@@ -1646,33 +1656,33 @@ ruleTester.run('no-typos', rule, {
     parserOptions,
     errors: [{
       message: ERROR_MESSAGE_ES5,
-      type: 'ObjectExpression'
+      type: 'Identifier'
     }, {
       message: ERROR_MESSAGE_ES5,
-      type: 'ObjectExpression'
+      type: 'Identifier'
     }, {
       message: ERROR_MESSAGE_ES5,
-      type: 'ObjectExpression'
+      type: 'Identifier'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillMount', 'componentWillMount'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentDidMount', 'componentDidMount'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillReceiveProps', 'componentWillReceiveProps'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ShouldComponentUpdate', 'shouldComponentUpdate'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillUpdate', 'componentWillUpdate'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentDidUpdate', 'componentDidUpdate'),
       type: 'Property'
     }, {
-      message: ERROR_MESSAGE_LIFECYCLE_METHOD,
+      message: ERROR_MESSAGE_LIFECYCLE_METHOD('ComponentWillUnmount', 'componentWillUnmount'),
       type: 'Property'
     }]
     /*

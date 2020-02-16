@@ -3,6 +3,7 @@
 const fromEntries = require('object.fromentries');
 const entries = require('object.entries');
 
+/* eslint-disable global-require */
 const allRules = {
   'boolean-prop-naming': require('./lib/rules/boolean-prop-naming'),
   'button-has-type': require('./lib/rules/button-has-type'),
@@ -14,11 +15,13 @@ const allRules = {
   'forbid-elements': require('./lib/rules/forbid-elements'),
   'forbid-foreign-prop-types': require('./lib/rules/forbid-foreign-prop-types'),
   'forbid-prop-types': require('./lib/rules/forbid-prop-types'),
+  'function-component-definition': require('./lib/rules/function-component-definition'),
   'jsx-boolean-value': require('./lib/rules/jsx-boolean-value'),
   'jsx-child-element-spacing': require('./lib/rules/jsx-child-element-spacing'),
   'jsx-closing-bracket-location': require('./lib/rules/jsx-closing-bracket-location'),
   'jsx-closing-tag-location': require('./lib/rules/jsx-closing-tag-location'),
   'jsx-curly-spacing': require('./lib/rules/jsx-curly-spacing'),
+  'jsx-curly-newline': require('./lib/rules/jsx-curly-newline'),
   'jsx-equals-spacing': require('./lib/rules/jsx-equals-spacing'),
   'jsx-filename-extension': require('./lib/rules/jsx-filename-extension'),
   'jsx-first-prop-new-line': require('./lib/rules/jsx-first-prop-new-line'),
@@ -32,7 +35,9 @@ const allRules = {
   'jsx-no-comment-textnodes': require('./lib/rules/jsx-no-comment-textnodes'),
   'jsx-no-duplicate-props': require('./lib/rules/jsx-no-duplicate-props'),
   'jsx-no-literals': require('./lib/rules/jsx-no-literals'),
+  'jsx-no-script-url': require('./lib/rules/jsx-no-script-url'),
   'jsx-no-target-blank': require('./lib/rules/jsx-no-target-blank'),
+  'jsx-no-useless-fragment': require('./lib/rules/jsx-no-useless-fragment'),
   'jsx-one-expression-per-line': require('./lib/rules/jsx-one-expression-per-line'),
   'jsx-no-undef': require('./lib/rules/jsx-no-undef'),
   'jsx-curly-brace-presence': require('./lib/rules/jsx-curly-brace-presence'),
@@ -48,6 +53,7 @@ const allRules = {
   'jsx-uses-vars': require('./lib/rules/jsx-uses-vars'),
   'jsx-wrap-multilines': require('./lib/rules/jsx-wrap-multilines'),
   'no-access-state-in-setstate': require('./lib/rules/no-access-state-in-setstate'),
+  'no-adjacent-inline-elements': require('./lib/rules/no-adjacent-inline-elements'),
   'no-array-index-key': require('./lib/rules/no-array-index-key'),
   'no-children-prop': require('./lib/rules/no-children-prop'),
   'no-danger': require('./lib/rules/no-danger'),
@@ -87,6 +93,7 @@ const allRules = {
   'style-prop-object': require('./lib/rules/style-prop-object'),
   'void-dom-elements-no-children': require('./lib/rules/void-dom-elements-no-children')
 };
+/* eslint-enable */
 
 function filterRules(rules, predicate) {
   return fromEntries(entries(rules).filter(entry => predicate(entry[1])));

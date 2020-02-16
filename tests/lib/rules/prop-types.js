@@ -871,17 +871,6 @@ ruleTester.run('prop-types', rule, {
       ].join('\n'),
       parser: parsers.BABEL_ESLINT
     }, {
-      // Reassigned props are ignored
-      code: [
-        'export class Hello extends Component {',
-        '  render() {',
-        '    const props = this.props;',
-        '    return <div>Hello {props.name.firstname} {props[\'name\'].lastname}</div>',
-        '  }',
-        '}'
-      ].join('\n'),
-      parser: parsers.BABEL_ESLINT
-    }, {
       code: [
         'export default function FooBar(props) {',
         '  const bar = props.bar;',
@@ -1459,7 +1448,8 @@ ruleTester.run('prop-types', rule, {
         '  }',
         '});'
       ].join('\n'),
-      options: [{skipUndeclared: true}]
+      options: [{skipUndeclared: true}],
+      parser: parsers.BABEL_ESLINT
     }, {
       code: [
         'class Hello extends React.Component {',
@@ -1639,6 +1629,23 @@ ruleTester.run('prop-types', rule, {
         '  props: Props;',
         '  render () {',
         '    return <div>Hello {this.props.person.firstname}</div>;',
+        '  }',
+        '}'
+      ].join('\n'),
+      parser: parsers.BABEL_ESLINT
+    }, {
+      code: [
+        'type OtherProps = {',
+        '  firstname: string,',
+        '};',
+        'type Props = {',
+        '   ...OtherProps,',
+        '   lastname: string',
+        '};',
+        'class Hello extends React.Component {',
+        '  props: Props;',
+        '  render () {',
+        '    return <div>Hello {this.props.firstname}</div>;',
         '  }',
         '}'
       ].join('\n'),
@@ -2079,6 +2086,17 @@ ruleTester.run('prop-types', rule, {
     {
       code: `
         class Foo extends React.Component {
+          bar() {
+            this.setState((state, props) => {
+              function f(_, {aaaaaaa}) {}
+            });
+          }
+        }
+      `
+    },
+    {
+      code: `
+        class Foo extends React.Component {
           static getDerivedStateFromProps(props) {
             const { foo } = props;
             return {
@@ -2336,6 +2354,30 @@ ruleTester.run('prop-types', rule, {
       parser: parsers.BABEL_ESLINT
     },
     {
+      // issue #2138
+      code: `
+        type UsedProps = {|
+          usedProp: number,
+        |};
+
+        type UnusedProps = {|
+          unusedProp: number,
+        |};
+
+        type Props = {| ...UsedProps, ...UnusedProps |};
+
+        function MyComponent({ usedProp }: Props) {
+          return <div>{usedProp}</div>;
+        }
+      `,
+      parser: parsers.BABEL_ESLINT,
+      errors: [{
+        message: "'notOne' is missing in props validation",
+        line: 8,
+        column: 34
+      }]
+    },
+    {
       // issue #1259
       code: `
         const Hello = props => {
@@ -2346,6 +2388,95 @@ ruleTester.run('prop-types', rule, {
         Hello.propTypes = {
           foo: PropTypes.number,
         }
+      `
+    },
+    {
+      // issue #2298
+      code: `
+      type Props = {|
+        firstname?: string
+      |};
+
+      function Hello({ firstname = 'John' }: Props = {}) {
+        return <div>Hello {firstname}</div>
+      }
+      `,
+      parser: parsers.BABEL_ESLINT
+    },
+    {
+      // issue #2326
+      code: `
+        for (const {result} of results) {}
+      `
+    },
+    {
+      // issue #2330
+      code: `
+        type Props = {
+          user: {
+            [string]: string
+          }
+        };
+
+        export function Bar(props: Props) {
+          return (
+            <div>
+              {props.user}
+              {props.user.name}
+            </div>
+          );
+        }
+      `,
+      parser: parsers.BABEL_ESLINT
+    },
+    {
+      code: `
+        const Label = React.memo(React.forwardRef(({ text }, ref) => {
+          return <div ref={ref}>{text}</div>;
+        }));
+        Label.propTypes = {
+          text: PropTypes.string
+        };
+      `
+    },
+    {
+      code: `
+        import React, { memo, forwardRef } from 'react';
+        const Label = memo(forwardRef(({ text }, ref) => {
+          return <div ref={ref}>{text}</div>;
+        }));
+        Label.propTypes = {
+          text: PropTypes.string
+        };
+      `
+    },
+    {
+      code: `
+        import Foo, { memo, forwardRef } from 'foo';
+        const Label = memo(forwardRef(({ text }, ref) => {
+          return <div ref={ref}>{text}</div>;
+        }));
+        Label.propTypes = {
+          text: PropTypes.string
+        };
+      `,
+      settings: {
+        react: {
+          pragma: 'Foo'
+        }
+      }
+    },
+    {
+      code: `
+        const Foo = ({length, ordering}) => (
+          length > 0 && (
+            <Paginator items={ordering} pageSize={10} />
+          )
+        );
+        Foo.propTypes = {
+          length: PropTypes.number,
+          ordering: PropTypes.array
+        };
       `
     }
   ],
@@ -2412,6 +2543,142 @@ ruleTester.run('prop-types', rule, {
         column: 35,
         type: 'Identifier'
       }]
+    }, {
+      code: `
+        class Hello extends React.Component {
+          render() {
+            const { foo: { bar } } = this.props;
+            return <p>{bar}</p>
+          }
+        }
+      `,
+      errors: [
+        {message: "'foo' is missing in props validation"},
+        {message: "'foo.bar' is missing in props validation"}
+      ]
+    }, {
+      code: `
+        class Hello extends React.Component {
+          render() {
+            const { foo: { bar } } = this.props;
+            return <p>{bar}</p>
+          }
+        }
+
+        Hello.propTypes = {
+          foo: PropTypes.shape({
+            _: PropTypes.string,
+          })
+        }
+      `,
+      errors: [
+        {message: "'foo.bar' is missing in props validation"}
+      ]
+    }, {
+      code: `
+        function Foo({ foo: { bar } }) {
+          return <p>{bar}</p>
+        }
+      `,
+      errors: [
+        {message: "'foo' is missing in props validation"},
+        {message: "'foo.bar' is missing in props validation"}
+      ]
+    },
+    {
+      code: `
+        function Foo({ a }) {
+          return <p>{ a.nope }</p>
+        }
+
+        Foo.propTypes = {
+          a: PropTypes.shape({
+            _: PropType.string,
+          })
+        }
+      `,
+      errors: [
+        {message: "'a.nope' is missing in props validation"}
+      ]
+    },
+    {
+      code: `
+        function Foo({ a }) {
+          const { b } = a
+          return <p>{ b.nope }</p>
+        }
+
+        Foo.propTypes = {
+          a: PropTypes.shape({
+            b: PropType.shape({
+              _: PropType.string,
+            }),
+          })
+        }
+      `,
+      errors: [
+        {message: "'a.b.nope' is missing in props validation"}
+      ]
+    },
+    {
+      code: `
+        function Foo(props) {
+          const { a } = props
+          return <p>{ a.nope }</p>
+        }
+
+        Foo.propTypes = {
+          a: PropTypes.shape({
+            _: PropType.string,
+          })
+        }
+      `,
+      errors: [
+        {message: "'a.nope' is missing in props validation"}
+      ]
+    },
+    {
+      code: `
+        function Foo(props) {
+          const a = props.a
+          return <p>{ a.nope }</p>
+        }
+
+        Foo.propTypes = {
+          a: PropTypes.shape({
+            _: PropType.string,
+          })
+        }
+      `,
+      errors: [
+        {message: "'a.nope' is missing in props validation"}
+      ]
+    },
+    {
+      code: `
+        class Foo extends Component {
+          render() {
+            const props = this.props
+            return <div>{props.cat}</div>
+          }
+        }
+      `,
+      errors: [
+        {message: "'cat' is missing in props validation"}
+      ]
+    },
+    {
+      code: `
+        class Foo extends Component {
+          render() {
+            const {props} = this
+            return <div>{props.cat}</div>
+          }
+        }
+      `,
+      errors: [
+        {message: "'cat' is missing in props validation"}
+      ]
     }, {
       code: [
         'class Hello extends React.Component {',
@@ -3323,6 +3590,8 @@ ruleTester.run('prop-types', rule, {
       ].join('\n'),
       errors: [{
         message: '\'names\' is missing in props validation'
+      }, {
+        message: '\'names.map\' is missing in props validation'
       }]
     }, {
       code: [
@@ -4480,9 +4749,11 @@ ruleTester.run('prop-types', rule, {
         }
       `,
       parser: parsers.BABEL_ESLINT,
-      errors: [{
-        message: '\'a\' is missing in props validation'
-      }]
+      errors: [
+        {message: '\'a\' is missing in props validation'},
+        {message: '\'a.b\' is missing in props validation'},
+        {message: '\'a.b.c\' is missing in props validation'}
+      ]
     },
     {
       code: `
@@ -4510,6 +4781,147 @@ ruleTester.run('prop-types', rule, {
       parser: parsers.BABEL_ESLINT,
       errors: [{
         message: '\'initialValues\' is missing in props validation'
+      }]
+    },
+    {
+      // issue #2138
+      code: `
+        type UsedProps = {|
+          usedProp: number,
+        |};
+
+        type UnusedProps = {|
+          unusedProp: number,
+        |};
+
+        type Props = {| ...UsedProps, ...UnusedProps |};
+
+        function MyComponent({ usedProp, notOne }: Props) {
+          return <div>{usedProp}</div>;
+        }
+      `,
+      parser: parsers.BABEL_ESLINT,
+      errors: [{
+        message: "'notOne' is missing in props validation",
+        line: 12,
+        column: 42
+      }]
+    },
+    {
+      // issue #2298
+      code: `
+        type Props = {|
+          firstname?: string
+        |};
+
+        function Hello({ firstname = 'John', lastname = 'Doe' }: Props = {}) {
+          return <div>Hello {firstname} {lastname}</div>
+        }
+      `,
+      parser: parsers.BABEL_ESLINT,
+      errors: [{
+        message: '\'lastname\' is missing in props validation'
+      }]
+    },
+    {
+      // issue #2330
+      code: `
+        type Props = {
+          user: {
+            name: {
+              firstname: string,
+              [string]: string
+            }
+          }
+        };
+
+        export function Bar(props: Props) {
+          return (
+            <div>
+              {props.user}
+              {props.user.name.firstname}
+              {props.user.name.lastname}
+              {props.user.age}
+            </div>
+          );
+        }
+      `,
+      parser: parsers.BABEL_ESLINT,
+      errors: [{
+        message: '\'user.age\' is missing in props validation'
+      }]
+    },
+    {
+      code: `
+        const Label = React.memo(React.forwardRef(({ text }, ref) => {
+          return <div ref={ref}>{text}</div>;
+        }));
+      `,
+      errors: [{
+        message: '\'text\' is missing in props validation'
+      }]
+    },
+    {
+      code: `
+        import React, { memo, forwardRef } from 'react';
+        const Label = memo(forwardRef(({ text }, ref) => {
+          return <div ref={ref}>{text}</div>;
+        }));
+      `,
+      errors: [{
+        message: '\'text\' is missing in props validation'
+      }]
+    },
+    {
+      code: `
+        import Foo, { memo, forwardRef } from 'foo';
+        const Label = memo(forwardRef(({ text }, ref) => {
+          return <div ref={ref}>{text}</div>;
+        }));
+      `,
+      settings: {
+        react: {
+          pragma: 'Foo'
+        }
+      },
+      errors: [{
+        message: '\'text\' is missing in props validation'
+      }]
+    },
+    {
+      code: `
+        function Foo({
+          foo: {
+            bar: foo,
+            baz
+          },
+        }) {
+          return <p>{foo.reduce(() => 5)}</p>;
+        }
+
+        Foo.propTypes = {
+          foo: PropTypes.shape({
+            bar: PropTypes.arrayOf(PropTypes.string).isRequired,
+          }).isRequired,
+        };
+      `,
+      errors: [{
+        message: '\'foo.baz\' is missing in props validation'
+      }]
+    },
+    {
+      code: `
+        const Foo = ({length, ordering}) => (
+          length > 0 && (
+            <Paginator items={ordering} pageSize={10} />
+          )
+        );
+      `,
+      errors: [{
+        message: '\'length\' is missing in props validation'
+      },
+      {
+        message: '\'ordering\' is missing in props validation'
       }]
     }
   ]
