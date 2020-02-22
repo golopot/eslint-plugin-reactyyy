@@ -26,8 +26,8 @@ const parserOptions = {
 
 const ruleTester = new RuleTester({parserOptions});
 const defaultErrors = [{
-  message: 'Using target="_blank" without rel="noopener noreferrer" is a security risk:' +
-  ' see https://mathiasbynens.github.io/rel-noopener'
+  message: 'Using target="_blank" without rel="noopener noreferrer" is a security risk:'
+  + ' see https://mathiasbynens.github.io/rel-noopener'
 }];
 
 ruleTester.run('jsx-no-target-blank', rule, {
